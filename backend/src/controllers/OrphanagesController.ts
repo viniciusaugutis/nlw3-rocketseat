@@ -1,20 +1,26 @@
 import { getRepository } from 'typeorm';
 import { Request, Response } from 'express';
 import Orphanage from '../models/Orphanage';
+import orphanageView from '../views/Orphanages_view';
+import OrphanagesView from '../views/Orphanages_view';
 
 export default {
   async index(request: Request, response: Response) {
     const orphanagesRepository = getRepository(Orphanage);
-    const orphanages = await orphanagesRepository.find();
+    const orphanages = await orphanagesRepository.find({
+      relations: ['images'],
+    });
 
-    return response.json(orphanages);
+    return response.json(OrphanagesView.renderMany(orphanages));
   },
   async show(request: Request, response: Response) {
     const { id } = request.params;
     const orphanagesRepository = getRepository(Orphanage);
-    const orphanage = await orphanagesRepository.findOneOrFail(id);
+    const orphanage = await orphanagesRepository.findOneOrFail(id, {
+      relations: ['images'],
+    });
 
-    return response.json(orphanage);
+    return response.json(OrphanagesView.render(orphanage));
   },
   async create(request: Request, response: Response) {
     const {
